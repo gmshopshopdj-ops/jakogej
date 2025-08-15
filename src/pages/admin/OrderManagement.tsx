@@ -227,6 +227,11 @@ const OrderManagement: React.FC = () => {
                       Popust primenjen: {selectedOrder.discount_code} (-{selectedOrder.discount_amount.toFixed(0)} RSD)
                     </p>
                   )}
+                  {selectedOrder.referral_code && (
+                    <p className="text-sm text-purple-600 mt-1">
+                      Referral kod: {selectedOrder.referral_code}
+                    </p>
+                  )}
                 </div>
 
                 <div>

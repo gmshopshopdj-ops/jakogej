@@ -37,7 +37,7 @@
 }
 
 /* Dark mode scrollbar */
-@media (prefers-color-scheme: dark) {
+.dark {
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -59,4 +59,17 @@
 /* Smooth transitions for all elements */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Ensure dark mode works properly */
+.dark {
+  color-scheme: dark;
+}
+
+/* Fix input autofill in dark mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
 }

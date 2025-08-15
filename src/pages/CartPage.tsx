@@ -114,7 +114,7 @@ const CartPage: React.FC = () => {
 
             if (!orderError && orderData) {
               // Create referral order entry
-              await supabase
+              const { error: referralOrderError } = await supabase
                 .from('referral_orders')
                 .insert({
                   referral_user_id: referralUser.id,
@@ -122,6 +122,10 @@ const CartPage: React.FC = () => {
                   credit_earned: referralUser.credit_per_order,
                   status: 'pending'
                 });
+              
+              if (referralOrderError) {
+                console.error('Error creating referral order:', referralOrderError);
+              }
             }
           }
         } catch (referralError) {

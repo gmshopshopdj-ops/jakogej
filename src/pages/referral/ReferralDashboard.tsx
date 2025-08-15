@@ -19,8 +19,11 @@ const ReferralDashboard: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchOrders();
+      // Refresh orders every 30 seconds
+      const interval = setInterval(fetchOrders, 30000);
+      return () => clearInterval(interval);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchOrders]);
 
   if (!isAuthenticated) {
     return <Navigate to="/referral" replace />;

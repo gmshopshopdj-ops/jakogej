@@ -213,8 +213,11 @@ const ProductManagement: React.FC = () => {
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="https://example.com/image.jpg"
+                placeholder="https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg"
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Ostavite prazno za default sliku
+              </p>
             </div>
 
             <div>

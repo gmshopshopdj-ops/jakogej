@@ -34,6 +34,7 @@ const ReferralManagement: React.FC = () => {
     username: '',
     email: '',
     password: '',
+    referral_code: '',
     credit_per_order: '50',
     is_active: true
   });
@@ -85,6 +86,7 @@ const ReferralManagement: React.FC = () => {
       username: '',
       email: '',
       password: '',
+      referral_code: '',
       credit_per_order: '50',
       is_active: true
     });
@@ -95,17 +97,35 @@ const ReferralManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate custom referral code if provided
+    if (formData.referral_code && !editingUser) {
+      const { data: existingCode } = await supabase
+        .from('referral_users')
+        .select('id')
+        .eq('referral_code', formData.referral_code.toUpperCase())
+        .single();
+      
+      if (existingCode) {
+        alert('Ovaj referral kod već postoji. Molimo izaberite drugi.');
+        return;
+      }
+    }
+    
     const userData = {
       username: formData.username,
       email: formData.email,
-      password_hash: formData.password, // In production, hash this properly
-      referral_code: editingUser?.referral_code || generateReferralCode(),
+      password_hash: formData.password,
+      referral_code: formData.referral_code.toUpperCase() || editingUser?.referral_code || generateReferralCode(),
       credit_per_order: parseFloat(formData.credit_per_order),
       is_active: formData.is_active
     };
 
     try {
       if (editingUser) {
+        // Don't update password if it's empty
+        if (!formData.password) {
+          delete userData.password_hash;
+        }
         const { error } = await supabase
           .from('referral_users')
           .update(userData)
@@ -135,6 +155,7 @@ const ReferralManagement: React.FC = () => {
       username: user.username,
       email: user.email,
       password: '', // Don't show password
+      referral_code: user.referral_code,
       credit_per_order: user.credit_per_order.toString(),
       is_active: user.is_active
     });
@@ -175,6 +196,9 @@ const ReferralManagement: React.FC = () => {
 
   const updateOrderStatus = async (orderId: string, status: 'approved' | 'rejected') => {
     try {
+      const order = referralOrders.find(o => o.id === orderId);
+      if (!order) return;
+      
       const { error } = await supabase
         .from('referral_orders')
         .update({ status })
@@ -184,21 +208,28 @@ const ReferralManagement: React.FC = () => {
 
       // If approved, add credit to user's balance
       if (status === 'approved') {
-        const order = referralOrders.find(o => o.id === orderId);
-        if (order) {
-          const { error: creditError } = await supabase
-            .from('referral_users')
-            .update({ 
-              credit_balance: supabase.raw(`credit_balance + ${order.credit_earned}`)
-            })
-            .eq('id', order.referral_user_id);
+        // Get current balance first
+        const { data: userData, error: fetchError } = await supabase
+          .from('referral_users')
+          .select('credit_balance')
+          .eq('id', order.referral_user_id)
+          .single();
+        
+        if (fetchError) throw fetchError;
+        
+        const newBalance = (userData.credit_balance || 0) + order.credit_earned;
+        
+        const { error: creditError } = await supabase
+          .from('referral_users')
+          .update({ credit_balance: newBalance })
+          .eq('id', order.referral_user_id);
 
-          if (creditError) throw creditError;
-        }
+        if (creditError) throw creditError;
       }
 
       fetchReferralOrders();
       fetchReferralUsers();
+      alert(`Porudžbina je ${status === 'approved' ? 'odobrena' : 'odbijena'}!`);
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Greška pri ažuriranju statusa porudžbine');
@@ -305,6 +336,23 @@ const ReferralManagement: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Custom Referral Kod (opciono)
+              </label>
+              <input
+                type="text"
+                value={formData.referral_code}
+                onChange={(e) => setFormData({ ...formData, referral_code: e.target.value.toUpperCase() })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="npr. CUSTOM123"
+                disabled={!!editingUser}
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {editingUser ? 'Referral kod se ne može menjati' : 'Ostavite prazno za automatsko generisanje'}
+              </p>
             </div>
 
             <div>
@@ -518,17 +566,22 @@ const ReferralManagement: React.FC = () => {
                         <>
                           <button
                             onClick={() => updateOrderStatus(order.id, 'approved')}
-                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                            className="bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-800 dark:text-green-200 px-3 py-1 rounded-lg text-sm font-medium transition-colors"
                           >
                             Odobri
                           </button>
                           <button
                             onClick={() => updateOrderStatus(order.id, 'rejected')}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-800 dark:text-red-200 px-3 py-1 rounded-lg text-sm font-medium transition-colors"
                           >
                             Odbaci
                           </button>
                         </>
+                      )}
+                      {order.status !== 'pending' && (
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                          {order.status === 'approved' ? 'Odobreno' : 'Odbačeno'}
+                        </span>
                       )}
                     </td>
                   </tr>

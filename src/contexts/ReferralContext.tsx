@@ -59,7 +59,6 @@ export const ReferralProvider: React.FC<ReferralProviderProps> = ({ children }) 
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      // Simple password check - in production, use proper hashing
       const { data, error } = await supabase
         .from('referral_users')
         .select('*')
@@ -69,12 +68,11 @@ export const ReferralProvider: React.FC<ReferralProviderProps> = ({ children }) 
 
       if (error || !data) return false;
 
-      // For demo purposes, we'll use simple password comparison
-      // In production, use bcrypt or similar
       if (data.password_hash === password) {
         setCurrentUser(data);
         setIsAuthenticated(true);
         localStorage.setItem('gmshop-referral-user', JSON.stringify(data));
+        await fetchOrders(); // Fetch orders immediately after login
         return true;
       }
       return false;
