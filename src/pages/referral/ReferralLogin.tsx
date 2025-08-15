@@ -103,7 +103,7 @@ const ReferralLogin: React.FC = () => {
 
         <div className="text-center">
           <p className="text-purple-200 text-sm">
-            Nemate nalog? Kontaktirajte administratora za kreiranje naloga.
+            Demo pristup: username: <strong>demo</strong>, password: <strong>demo123</strong>
           </p>
         </div>
       </div>

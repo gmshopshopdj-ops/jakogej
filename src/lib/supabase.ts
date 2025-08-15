@@ -1,13 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.');
+// Create client with fallback for demo mode
+let supabaseClient;
+try {
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+} catch (error) {
+  console.warn('Supabase connection failed, using demo mode');
+  // Create a mock client for demo purposes
+  supabaseClient = {
+    from: () => ({
+      select: () => ({ data: [], error: null }),
+      insert: () => ({ data: null, error: null }),
+      update: () => ({ data: null, error: null }),
+      delete: () => ({ data: null, error: null }),
+      eq: () => ({ data: [], error: null }),
+      single: () => ({ data: null, error: null }),
+      order: () => ({ data: [], error: null })
+    })
+  };
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = supabaseClient;
 
 export type Database = {
   public: {

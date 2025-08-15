@@ -18,7 +18,7 @@ const Header: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">GmShop</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">Premium Gaming Prodavnica</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">Premium Gaming Store</p>
             </div>
           </Link>
 

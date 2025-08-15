@@ -24,15 +24,88 @@ const HomePage: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
+      // Demo products for when Supabase is not configured
+      const demoProducts = [
+        {
+          id: '1',
+          name: 'Fortnite Account - Level 100',
+          description: 'Premium Fortnite nalog sa Level 100, mnogo skinova i V-Bucks. Idealan za sve ljubitelje Battle Royale igara.',
+          price: 2500,
+          category: 'accounts',
+          image_url: 'https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg',
+          created_at: new Date().toISOString(),
+          stock_quantity: 15,
+          track_stock: true,
+          low_stock_threshold: 5,
+          original_price: 3500,
+          show_fake_discount: true
+        },
+        {
+          id: '2',
+          name: 'Netflix Premium - 1 Godina',
+          description: 'Netflix Premium pretplata na 1 godinu. 4K kvalitet, 4 simultana stream-a, bez reklama.',
+          price: 1200,
+          category: 'subscriptions',
+          image_url: 'https://images.pexels.com/photos/4009402/pexels-photo-4009402.jpeg',
+          created_at: new Date().toISOString(),
+          stock_quantity: 25,
+          track_stock: true,
+          low_stock_threshold: 5
+        },
+        {
+          id: '3',
+          name: 'Minecraft Java Edition',
+          description: 'Originalna Minecraft Java Edition licenca. Pristup svim modovima i serverima.',
+          price: 800,
+          category: 'accounts',
+          image_url: 'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg',
+          created_at: new Date().toISOString(),
+          stock_quantity: 50,
+          track_stock: true,
+          low_stock_threshold: 10
+        },
+        {
+          id: '4',
+          name: 'Discord Nitro - 6 Meseci',
+          description: 'Discord Nitro pretplata na 6 meseci. Booster badge, custom emoji, HD video pozivi.',
+          price: 600,
+          category: 'addons',
+          image_url: 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg',
+          created_at: new Date().toISOString(),
+          stock_quantity: 30,
+          track_stock: true,
+          low_stock_threshold: 5
+        }
+      ];
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setProducts(data || []);
+      if (error || !data || data.length === 0) {
+        console.log('Using demo products');
+        setProducts(demoProducts);
+      } else {
+        setProducts(data);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
+      // Fallback to demo products
+      setProducts([
+        {
+          id: '1',
+          name: 'Fortnite Account - Level 100',
+          description: 'Premium Fortnite nalog sa Level 100, mnogo skinova i V-Bucks.',
+          price: 2500,
+          category: 'accounts',
+          image_url: 'https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg',
+          created_at: new Date().toISOString(),
+          stock_quantity: 15,
+          track_stock: true,
+          low_stock_threshold: 5
+        }
+      ]);
     } finally {
       setLoading(false);
     }

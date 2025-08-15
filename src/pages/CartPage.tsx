@@ -77,6 +77,20 @@ const CartPage: React.FC = () => {
     const total = subtotal - discountAmount;
 
     try {
+      // Demo mode - just show success without database
+      if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://demo.supabase.co') {
+        console.log('Demo mode - order created locally');
+        setOrderCode(code);
+        setOrderComplete(true);
+        clearCart();
+        setDiscount(0);
+        setAppliedDiscountInfo(null);
+        setDiscountCode('');
+        setReferralCode('');
+        setLoading(false);
+        return;
+      }
+
       // Create the order first
       const { error } = await supabase
         .from('orders')

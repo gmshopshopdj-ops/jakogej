@@ -29,7 +29,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (email: string, password: string): boolean => {
-    if ((email === 'damjan@detemarketinga.site' && password === 'Damjan123') ||
+    // Demo admin credentials
+    if ((email === 'admin@gmshop.com' && password === 'admin123') ||
+        (email === 'damjan@detemarketinga.site' && password === 'Damjan123') ||
         (email === 'janko@detemarketinga.site' && password === 'janko_car1')) {
       setIsAuthenticated(true);
       localStorage.setItem('gmshop-admin-auth', 'true');

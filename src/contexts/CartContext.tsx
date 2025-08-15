@@ -47,7 +47,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const addToCart = (product: Product) => {
     // Check stock availability
     if (product.track_stock && product.stock_quantity <= 0) {
-      setToastMessage(`${product.name} nije dostupan na stanju!`);
+      setToastMessage(`${product.name} trenutno nije dostupan!`);
       setShowToast(true);
       return;
     }
@@ -58,7 +58,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       if (existingItem) {
         // Check if adding one more would exceed stock
         if (product.track_stock && existingItem.quantity >= product.stock_quantity) {
-          setToastMessage(`Maksimalna količina za ${product.name} je ${product.stock_quantity}!`);
+          setToastMessage(`Maksimalno ${product.stock_quantity} komada!`);
           setShowToast(true);
           return prev; // Don't add more
         }

@@ -59,6 +59,24 @@ export const ReferralProvider: React.FC<ReferralProviderProps> = ({ children }) 
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
+      // Demo login
+      if (username === 'demo' && password === 'demo123') {
+        const demoUser = {
+          id: 'demo-1',
+          username: 'demo',
+          email: 'demo@gmshop.com',
+          referral_code: 'DEMO123',
+          credit_balance: 150,
+          credit_per_order: 50,
+          is_active: true,
+          created_at: new Date().toISOString()
+        };
+        setCurrentUser(demoUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('gmshop-referral-user', JSON.stringify(demoUser));
+        return true;
+      }
+
       const { data, error } = await supabase
         .from('referral_users')
         .select('*')
